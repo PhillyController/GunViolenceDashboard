@@ -10,14 +10,18 @@ export async function githubFetch(jsonFilename: string): Promise<any> {
    * @param jsonFilename the name of the JSON file to fetch
    * @returns the fetched JSON data
    */
-
-  const REPO =
-    "https://raw.githubusercontent.com/PhiladelphiaController/gun-violence-dashboard-data";
-  const response = await fetch(
-    `${REPO}/master/gun_violence_dashboard_data/data/processed/${jsonFilename}`
-  );
-  const data = await response.json();
-  return data;
+  try {
+    const REPO = "https://raw.githubusercontent.com/PhillyController/gun-violence-dashboard-data";
+    const BRANCH = "feature/update-workflows";
+    const response = await fetch(
+      `${REPO}/${BRANCH}/gun_violence_dashboard_data/data/processed/${jsonFilename}`
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Failed to fetch ${jsonFilename}`, error);
+    throw error;
+  }
 }
 
 export function jsonToGeoJson(data: GenericFeature[]): string {
