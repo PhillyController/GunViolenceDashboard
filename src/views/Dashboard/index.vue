@@ -58,6 +58,7 @@ import {
   msToTimeString,
   timestampToTimeString,
 } from "@/utils/datetime";
+import { githubFetch } from '@/utils/io'
 
 // Types
 import {
@@ -852,34 +853,46 @@ export default defineComponent({
      * @returns the feature collection of shooting victim data
      */
     async fetchData(year: number): Promise<ShootingVictimsGeoJson> {
-      // Fetch the data from AWS
-      const url = "https://gun-violence-dashboard.s3.amazonaws.com/";
-      const response = await fetch(url + `shootings_test_${year}.json`);
-      let data = await response.json();
-
-      // Format for the time
-      const parseTime = timeParse("%Y/%m/%d %H:%M:%S");
-
-      // Loop over features
-      data.features.forEach(
-        (d: Feature<Point | null, ShootingVictimsProperties>, i: number) => {
-          // Parse the date
-          let dt = parseTime(d.properties["date"]);
-
-          // Add additional date properties
-          if (dt) {
-            let ms = dt.getTime();
-            d.properties["dateInMs"] = ms;
-            d.properties["timeInMs"] = getMsSinceMidnight(ms);
-            d.properties["weekday"] = dt.getDay();
+      try {
+        // Fetch the data from AWS
+        // const url = "https://gun-violence-dashboard.s3.amazonaws.com/";
+        // const response = await fetch(url + `shootings_test_${year}.json`);
+        // let data = await response.json();
+  
+        let data = await githubFetch(`shootings_${year}.json`)
+  
+        // Format for the time
+        const parseTime = timeParse("%Y/%m/%d %H:%M:%S");
+  
+        // Loop over features
+        data.features.forEach(
+          (d: Feature<Point | null, ShootingVictimsProperties>, i: number) => {
+            // Parse the date
+            let dt = parseTime(d.properties["date"]);
+  
+            // Add additional date properties
+            if (dt) {
+              let ms = dt.getTime();
+              d.properties["dateInMs"] = ms;
+              d.properties["timeInMs"] = getMsSinceMidnight(ms);
+              d.properties["weekday"] = dt.getDay();
+            }
+  
+            // Add the unique identifier
+            d.properties["unique_id"] = i;
           }
-
-          // Add the unique identifier
-          d.properties["unique_id"] = i;
-        }
-      );
-
-      return data;
+        );
+  
+        return data;
+        
+      } catch (error) {
+        console.error('fetch data error:', error)
+        return {
+          type: "FeatureCollection",
+          features: [],
+          properties: {}
+        } as ShootingVictimsGeoJson;
+      }
     },
 
     /**
