@@ -212,7 +212,7 @@ export default defineComponent({
       if (!this.homicideData) return null;
 
       // Selected year is defined
-      if (this.selectedYear !== undefined) {
+      if (this.selectedYear !== undefined && this.homicideData[year]) {
         // Either return YTD for current year or annual for past year
         if (this.selectedYear == this.latestHomicideYear)
           return this.homicideData[year].ytd;

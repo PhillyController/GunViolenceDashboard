@@ -412,7 +412,7 @@ export default defineComponent({
           let bottom = this.dimensions[dim].bottom(1);
 
           // Set the default value
-          filter.default = [bottom[0].properties[dim], top[0].properties[dim]];
+          filter.default = [bottom[0]?.properties[dim], top[0]?.properties[dim]];
 
           // Reset value if the sidebar has been initialized
           // This will reset values on filter
