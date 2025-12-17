@@ -4,18 +4,28 @@ import { GenericFeature } from "@/types/Data";
 
 export async function githubFetch(jsonFilename: string): Promise<any> {
   /**
-   * Fetches the specified filename from the processed/ folder of the
-   * `gun-violenced-dashboard-data` GitHub repository
+   * Fetches the specified filename from S3 bucket for shootings data,
+   * or from GitHub for other data files
    *
    * @param jsonFilename the name of the JSON file to fetch
    * @returns the fetched JSON data
    */
   try {
-    const REPO = "https://raw.githubusercontent.com/PhillyController/gun-violence-dashboard-data";
-    const BRANCH = "master";
-    const response = await fetch(
-      `${REPO}/${BRANCH}/gun_violence_dashboard_data/data/processed/${jsonFilename}`
-    );
+    let url: string;
+
+    // Shootings data comes from S3 bucket (has court case info)
+    if (jsonFilename.startsWith('shootings_')) {
+      const S3_BUCKET = "https://philly-gun-violence-map.s3.amazonaws.com";
+      url = `${S3_BUCKET}/${jsonFilename}`;
+    }
+    // Other data (data_years, homicide_totals) comes from GitHub
+    else {
+      const REPO = "https://raw.githubusercontent.com/PhillyController/gun-violence-dashboard-data";
+      const BRANCH = "master";
+      url = `${REPO}/${BRANCH}/gun_violence_dashboard_data/data/processed/${jsonFilename}`;
+    }
+
+    const response = await fetch(url);
     const data = await response.json();
     return data;
   } catch (error) {
