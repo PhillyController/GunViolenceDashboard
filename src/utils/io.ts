@@ -11,19 +11,9 @@ export async function githubFetch(jsonFilename: string): Promise<any> {
    * @returns the fetched JSON data
    */
   try {
-    let url: string;
-
-    // Shootings data comes from S3 bucket (has court case info)
-    if (jsonFilename.startsWith('shootings_')) {
-      const S3_BUCKET = "https://philly-gun-violence-map.s3.amazonaws.com";
-      url = `${S3_BUCKET}/${jsonFilename}`;
-    }
-    // Other data (data_years, homicide_totals) comes from GitHub
-    else {
-      const REPO = "https://raw.githubusercontent.com/PhillyController/gun-violence-dashboard-data";
-      const BRANCH = "master";
-      url = `${REPO}/${BRANCH}/gun_violence_dashboard_data/data/processed/${jsonFilename}`;
-    }
+    const REPO = "https://raw.githubusercontent.com/PhillyController/gun-violence-dashboard-data";
+    const BRANCH = "master";
+    const url = `${REPO}/${BRANCH}/gun_violence_dashboard_data/data/processed/${jsonFilename}`;
 
     const response = await fetch(url);
     const data = await response.json();
